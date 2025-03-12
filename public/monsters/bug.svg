@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <ellipse style="fill: rgb(255, 248, 124);" cx="250" cy="120" rx="95" ry="66" />
+  <ellipse style="fill: rgb(255, 248, 124);" cx="250" cy="250" rx="95" ry="66" />
+  <ellipse style="fill: rgb(255, 248, 124);" cx="250" cy="380" rx="95" ry="66" />
+  <path style="stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-width: 14px;" d="M 323 207 L 446 169" />
+  <path style="stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-width: 14px;" d="M 346 249 L 462 249" />
+  <path style="stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-width: 14px;" d="M 326 285 L 450 310" />
+  <path style="stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-width: 8px;" d="M 304 66 L 280 30" />
+  <path style="stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-width: 14px;" d="M 177 207 L 54 169" />
+  <path style="stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-width: 14px;" d="M 154 249 L 38 249" />
+  <path style="stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-width: 14px;" d="M 174 285 L 50 310" />
+  <path style="stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-width: 8px;" d="M 196 66 L 230 30" />
+</svg>
