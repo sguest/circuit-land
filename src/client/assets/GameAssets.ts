@@ -7,4 +7,5 @@ export interface GameAssets
     tileSprites: Map<Tile, CanvasImageSource>
     itemSprites: Map<ItemType, CanvasImageSource>
     monsterSprites: Map<MonsterType, CanvasImageSource>
+    playerSprite: CanvasImageSource;
 }

@@ -77,10 +77,12 @@ export async function loadAssets(level: LevelData): Promise<GameAssets>
     const tilePromise = loadSprites<Tile>(tileLookup);
     const itemPromise = loadSprites<ItemType>(itemLookup);
     const monsterPromise = loadSprites<MonsterType>(monsterLookup);
+    const playerPromise = loadSprites({0: '/chip.svg'});
 
     return {
         tileSprites: await tilePromise,
         itemSprites: await itemPromise,
         monsterSprites: await monsterPromise,
+        playerSprite: (await playerPromise).get(0)!,
     };
 }

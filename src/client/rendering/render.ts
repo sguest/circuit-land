@@ -57,4 +57,6 @@ export function renderLevel(level: GameState, browserContext: BrowserContext, ga
             console.error(`Rendering error - unrecognized monster type ${monster.type}`);
         }
     }
+
+    renderSprite(level.player.position, gameAssets.playerSprite, renderContext, browserContext.monsterContext);
 }
