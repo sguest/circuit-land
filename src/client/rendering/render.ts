@@ -4,10 +4,29 @@ import type { GameState } from '../GameState';
 import type { BrowserContext } from '../BrowserContext';
 import type { GameAssets } from '../assets/GameAssets';
 import { Tile } from '../../common/gameState/Tile';
+import { Facing } from '../../common/gameState/Facing';
 
-function renderSprite(position: Position, imageData: CanvasImageSource, renderContext: RenderContext, canvas: CanvasRenderingContext2D)
+function renderSprite(position: Position, imageData: CanvasImageSource, renderContext: RenderContext, canvas: CanvasRenderingContext2D, angle?: number)
 {
-    canvas.drawImage(imageData, position.x * renderContext.tileWidth, position.y * renderContext.tileHeight, renderContext.tileWidth, renderContext.tileHeight);
+    let drawX = position.x * renderContext.tileWidth;
+    let drawY = position.y * renderContext.tileHeight;
+    if(angle)
+    {
+        canvas.save();
+        canvas.translate(drawX + renderContext.tileWidth / 2, drawY + renderContext.tileHeight / 2);
+        canvas.rotate(angle);
+        canvas.translate(-drawX - renderContext.tileWidth / 2, -drawY - renderContext.tileHeight / 2);
+    }
+    canvas.drawImage(imageData, drawX, drawY, renderContext.tileWidth, renderContext.tileHeight);
+    if(angle)
+    {
+        canvas.restore();
+    }
+}
+
+function clearCanvas(context: CanvasRenderingContext2D)
+{
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 }
 
 export function renderLevel(level: GameState, browserContext: BrowserContext, gameAssets: GameAssets)
@@ -16,6 +35,10 @@ export function renderLevel(level: GameState, browserContext: BrowserContext, ga
         tileWidth: 30,
         tileHeight: 30,
     }
+
+    clearCanvas(browserContext.itemContext);
+    clearCanvas(browserContext.tileContext);
+    clearCanvas(browserContext.monsterContext);
 
     for(let x = 0; x < level.width; x++)
     {
@@ -58,5 +81,17 @@ export function renderLevel(level: GameState, browserContext: BrowserContext, ga
         }
     }
 
-    renderSprite(level.player.position, gameAssets.playerSprite, renderContext, browserContext.monsterContext);
+    let angle: number = 0;
+    switch (level.player.facing) {
+        case Facing.East:
+            angle = Math.PI / 2;
+            break;
+        case Facing.West:
+            angle = Math.PI * 1.5;
+            break;
+        case Facing.South:
+            angle = Math.PI;
+            break;
+    }
+    renderSprite(level.player.position, gameAssets.playerSprite, renderContext, browserContext.monsterContext, angle);
 }

@@ -1,9 +1,6 @@
-import { Facing } from '../common/gameState/Facing';
 import type { LevelData } from '../common/gameState/LevelData';
-import { loadAssets } from './assets/loader';
 import type { BrowserContext } from './BrowserContext';
-import type { GameState } from './GameState';
-import { renderLevel } from './rendering/render';
+import { GameManager } from './GameManager';
 
 var response = await fetch('/data');
 var data: LevelData[] = await response.json();
@@ -20,16 +17,6 @@ const browserContext: BrowserContext = {
     monsterContext: getCanvas('monster-canvas'),
 }
 
-const gameState: GameState = {
-    width: levelData.width,
-    height: levelData.height,
-    tiles: levelData.tiles,
-    items: levelData.items,
-    monsters: levelData.monsters,
-    player: {
-        position: levelData.start,
-        facing: Facing.South,
-    },
-}
+const manager = new GameManager(browserContext);
 
-loadAssets(levelData).then(assets => renderLevel(gameState, browserContext, assets));
+manager.loadLevel(levelData);
