@@ -175,6 +175,16 @@ export function renderLevel(level: GameState, browserContext: BrowserContext, ga
         renderInventory(level, browserContext, renderContext, gameAssets);
     }
 
+    browserContext.timeRemaining.innerText = Math.floor(level.timeRemaining / 1000).toString();
+
+    if(level.showHint && level.levelHint)
+    {
+        browserContext.hint.innerText = level.levelHint;
+    }
+    else {
+        browserContext.hint.innerText = '';
+    }
+
     renderMonsters(level, browserContext, renderContext, gameAssets.monsterSprites);
     renderDynamicItems(level, browserContext, renderContext, gameAssets.itemSprites);
     renderActor(level.player, gameAssets.playerSprite, renderContext, browserContext.actorContext);

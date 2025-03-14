@@ -222,6 +222,7 @@ export const readLevels = async (path: string): Promise<LevelData[]> => {
 
     const validateLevel = (data: Partial<LevelData>): data is LevelData => {
         if(
+            data.levelNumber == undefined ||
             data.time === undefined ||
             data.chips === undefined ||
             data.width === undefined ||
@@ -255,6 +256,7 @@ export const readLevels = async (path: string): Promise<LevelData[]> => {
         readWord();
 
         const data: Partial<LevelData> = {
+            levelNumber,
             time,
             chips,
             width: 32,

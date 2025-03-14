@@ -31,6 +31,10 @@ export class GameManager
             player: { position: { x: 0, y: 0 }, facing: Facing.South },
             inventory: new Map<ItemType, number>(),
             chipsRemaining: 0,
+            timeRemaining: 0,
+            isRunning: false,
+            levelHint: '',
+            showHint: false,
             needsItemRender: false,
             needsTileRender: false,
             needsInventoryRender: false,
@@ -59,10 +63,18 @@ export class GameManager
             },
             inventory: new Map<ItemType, number>(),
             chipsRemaining: levelData.chips,
+            timeRemaining: levelData.time * 1000,
+            isRunning: false,
+            levelHint: levelData.hint,
+            showHint: false,
             needsItemRender: true,
             needsTileRender: true,
             needsInventoryRender: true,
         }
+
+        this.browserContext.levelTitle.innerText = levelData.title;
+        this.browserContext.levelNumber.innerText = levelData.levelNumber.toString();
+        this.browserContext.password.innerText = levelData.password;
 
         loadAssets(levelData).then(assets => {
             this.assets = assets;
@@ -122,6 +134,8 @@ export class GameManager
         let tile = this.currentState.tiles[position.x][position.y];
         let newTile: Tile | undefined = undefined;
 
+        this.currentState.showHint = (tile === Tile.Hint);
+
         const keyType = getKeyType(tile);
         if(keyType) 
         {
@@ -150,8 +164,14 @@ export class GameManager
 
     private handleFrame(time: number)
     {
-        this.tickDelay += time - this.lastFrameTime;
+        const elapsed = time - this.lastFrameTime;
         this.lastFrameTime = time;
+        this.tickDelay += elapsed;
+
+        if(this.currentState.isRunning)
+        {
+            this.currentState.timeRemaining = Math.max(this.currentState.timeRemaining - elapsed, 0);
+        }
 
         while(this.tickDelay >= 200)
         {
@@ -172,6 +192,7 @@ export class GameManager
             }
             if(moveDirection)
             {
+                this.currentState.isRunning = true;
                 this.currentState.player.facing = moveDirection;
                 if(this.moveTo(movePosition(this.currentState.player.position, moveDirection)))
                 {

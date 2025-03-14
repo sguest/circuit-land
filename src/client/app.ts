@@ -16,7 +16,12 @@ const browserContext: BrowserContext = {
     itemContext: getCanvas('item-canvas'),
     actorContext: getCanvas('actor-canvas'),
     inventoryContext: getCanvas('inventory-canvas'),
+    levelTitle: document.querySelector('#level-title')!,
+    password: document.querySelector('#password')!,
+    levelNumber: document.querySelector('#level-number')!,
     chipsCount: document.querySelector('#chips-count')!,
+    timeRemaining: document.querySelector('#time-remaining')!,
+    hint: document.querySelector('#hint')!,
 }
 
 const manager = new GameManager(browserContext);

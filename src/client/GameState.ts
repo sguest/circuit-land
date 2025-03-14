@@ -14,6 +14,10 @@ export interface GameState {
     player: Player;
     inventory: Map<ItemType, number>,
     chipsRemaining: number,
+    timeRemaining: number,
+    isRunning: boolean,
+    levelHint?: string;
+    showHint: boolean;
     needsTileRender: boolean,
     needsItemRender: boolean,
     needsInventoryRender: boolean,
