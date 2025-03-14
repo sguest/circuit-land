@@ -4,6 +4,13 @@ import type { Monster } from '../common/gameState/Monster';
 import type { Tile } from '../common/gameState/Tile';
 import type { Player } from './Player';
 
+export const enum RunningState {
+    Starting = 1,
+    Running = 2,
+    Defeat = 3,
+    Victory = 4,
+}
+
 export interface GameState {
     width: number;
     height: number;
@@ -15,7 +22,7 @@ export interface GameState {
     inventory: Map<ItemType, number>,
     chipsRemaining: number,
     timeRemaining: number,
-    isRunning: boolean,
+    runningState: RunningState,
     levelHint?: string;
     showHint: boolean;
     needsTileRender: boolean,

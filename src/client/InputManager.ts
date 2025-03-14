@@ -8,6 +8,7 @@ const enum KeyState {
 export class InputManager
 {
     private pressedKeys: {[key: string]: KeyState} = {};
+    private oneTimeListeners: {[key: string]: () => void} = {};
 
     constructor()
     {
@@ -40,9 +41,21 @@ export class InputManager
         return stateMap;
     }
 
+    public addOneTimeListener(key: string, callback: () => void)
+    {
+        this.oneTimeListeners[key] = callback;
+    }
+
     private handleKeyDown(event: KeyboardEvent)
     {
         this.pressedKeys[event.key] = KeyState.Pressed;
+
+        const listener = this.oneTimeListeners[event.key];
+        if(listener)
+        {
+            delete this.oneTimeListeners[event.key];
+            listener();
+        }
     }
 
     private handleKeyUp(event: KeyboardEvent)
@@ -55,4 +68,13 @@ export class InputManager
             this.pressedKeys[event.key] = KeyState.Up;
         }
     }
+}
+
+let instance: InputManager | undefined = undefined;
+
+export function getInputManager() {
+    if(!instance) {
+        instance = new InputManager();
+    }
+    return instance;
 }
