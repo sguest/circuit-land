@@ -5,6 +5,7 @@ import type { BrowserContext } from '../BrowserContext';
 import type { GameAssets } from '../assets/GameAssets';
 import { Tile } from '../../common/gameState/Tile';
 import { Facing } from '../../common/gameState/Facing';
+import { ItemType } from '../../common/gameState/ItemType';
 
 function renderSprite(position: Position, imageData: CanvasImageSource, renderContext: RenderContext, canvas: CanvasRenderingContext2D, angle?: number)
 {
@@ -39,6 +40,7 @@ export function renderLevel(level: GameState, browserContext: BrowserContext, ga
     clearCanvas(browserContext.itemContext);
     clearCanvas(browserContext.tileContext);
     clearCanvas(browserContext.monsterContext);
+    clearCanvas(browserContext.inventoryContext);
 
     for(let x = 0; x < level.width; x++)
     {
@@ -94,4 +96,25 @@ export function renderLevel(level: GameState, browserContext: BrowserContext, ga
             break;
     }
     renderSprite(level.player.position, gameAssets.playerSprite, renderContext, browserContext.monsterContext, angle);
+
+    for(let x = 0; x < 4; x++)
+    {
+        for(let y = 0; y < 2; y++)
+        {
+            renderSprite({ x, y }, gameAssets.tileSprites.get(Tile.Floor)!, renderContext, browserContext.inventoryContext);
+        }
+    }
+
+    let keys = [ItemType.RedKey, ItemType.BlueKey, ItemType.YellowKey, ItemType.GreenKey];
+    for(let i = 0; i < keys.length; i++)
+    {
+        const key = keys[i];
+        const keyCount = level.inventory.get(key);
+        if(keyCount)
+        {
+            renderSprite({ x: i, y: 0}, gameAssets.itemSprites.get(key)!, renderContext, browserContext.inventoryContext);
+        }
+    }
+
+    browserContext.chipsCount.textContent = level.chipsRemaining.toString();
 }

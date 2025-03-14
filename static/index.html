@@ -7,10 +7,16 @@
         <script src="../src/client/app.ts" type="module"></script>
     </head>
     <body>
-        <div class="canvas-container">
-            <canvas id="tile-canvas" width="900" height="900"></canvas>
-            <canvas id="item-canvas" width="900" height="900"></canvas>
-            <canvas id="monster-canvas" width="900" height="900"></canvas>
+        <div class="game-area">
+            <div class="canvas-container">
+                <canvas id="tile-canvas" width="900" height="900"></canvas>
+                <canvas id="item-canvas" width="900" height="900"></canvas>
+                <canvas id="monster-canvas" width="900" height="900"></canvas>
+            </div>
+            <div class="sidebar">
+                Chips: <span id="chips-count">0</span>
+                <canvas id="inventory-canvas" width="120" height="60"></canvas>
+            </div>
         </div>
     </body>
 </html>

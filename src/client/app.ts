@@ -15,6 +15,8 @@ const browserContext: BrowserContext = {
     tileContext: getCanvas('tile-canvas'),
     itemContext: getCanvas('item-canvas'),
     monsterContext: getCanvas('monster-canvas'),
+    inventoryContext: getCanvas('inventory-canvas'),
+    chipsCount: document.querySelector('#chips-count')!,
 }
 
 const manager = new GameManager(browserContext);

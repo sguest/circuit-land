@@ -1,7 +1,18 @@
+.game-area{
+    display: flex;
+    flex-direction: row;
+}
+
 .canvas-container {
-    position: relative;
+    width: 900px;
+    height: 900px;
 }
 
 .canvas-container canvas {
     position: absolute;
+}
+
+.sidebar {
+    background: #ccc;
+    width: 350px;
 }
