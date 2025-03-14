@@ -1,12 +1,14 @@
 import { Facing } from '../common/gameState/Facing';
+import { ItemType } from '../common/gameState/ItemType';
 import type { LevelData } from '../common/gameState/LevelData';
-import { movePosition, type Position } from '../common/gameState/Position';
+import { movePosition, positionEqual, type Position } from '../common/gameState/Position';
+import { Tile } from '../common/gameState/Tile';
 import type { GameAssets } from './assets/GameAssets';
 import { loadAssets } from './assets/loader';
 import type { BrowserContext } from './BrowserContext';
-import { checkCollision, PlayerCollision } from './collision';
+import { checkCollision, getKeyType, PlayerCollision } from './collision';
 import type { GameState } from './GameState';
-import { InputManager } from './inputManager';
+import { InputManager } from './InputManager';
 import { renderLevel } from './rendering/render';
 
 export class GameManager
@@ -23,9 +25,11 @@ export class GameManager
             width: 0,
             height: 0,
             tiles: [],
-            items: [],
+            items: new Set(),
             monsters: [],
             player: { position: { x: 0, y: 0 }, facing: Facing.South },
+            inventory: new Map<ItemType, number>(),
+            chipsRemaining: 0,
         }
 
         this.assets = {
@@ -42,12 +46,14 @@ export class GameManager
             width: levelData.width,
             height: levelData.height,
             tiles: levelData.tiles,
-            items: levelData.items,
+            items: new Set(levelData.items),
             monsters: levelData.monsters,
             player: {
                 position: levelData.start,
                 facing: Facing.South,
             },
+            inventory: new Map<ItemType, number>(),
+            chipsRemaining: levelData.chips,
         }
 
         loadAssets(levelData).then(assets => {
@@ -67,15 +73,14 @@ export class GameManager
         if(checkCollision(this.currentState, position, PlayerCollision))
         {
             this.currentState.player.position = position;
+            return true;
         }
+
+        return false;
     }
 
     private handleFrame(time: number)
     {
-        if(!this.currentState || !this.assets) {
-            throw new Error('Render failed - no level loaded');
-        }
-
         this.tickDelay += time - this.lastFrameTime;
         this.lastFrameTime = time;
 
@@ -99,7 +104,47 @@ export class GameManager
             if(moveDirection)
             {
                 this.currentState.player.facing = moveDirection;
-                this.moveTo(movePosition(this.currentState.player.position, moveDirection));
+                if(this.moveTo(movePosition(this.currentState.player.position, moveDirection)))
+                {
+                    for(let item of this.currentState.items)
+                    {
+                        if(positionEqual(item.position, this.currentState.player.position))
+                        {
+                            if(item.type === ItemType.Chip)
+                            {
+                                this.currentState.chipsRemaining = Math.max(this.currentState.chipsRemaining - 1, 0);
+                                this.currentState.items.delete(item);
+                            }
+                            else if(item.type === ItemType.BlueKey || item.type === ItemType.RedKey || item.type === ItemType.GreenKey || item.type === ItemType.YellowKey)
+                            {
+                                this.currentState.inventory.set(item.type, (this.currentState.inventory.get(item.type) || 0) + 1);
+                                this.currentState.items.delete(item);
+                                console.log(this.currentState.inventory);
+                            }
+                        }
+                    }
+
+                    let tile = this.currentState.tiles[this.currentState.player.position.x][this.currentState.player.position.y];
+
+                    const keyType = getKeyType(tile);
+                    if(keyType) 
+                    {
+                        const keyCount = this.currentState.inventory.get(keyType);
+                        if(!!keyCount)
+                        {
+                            if(keyType !== ItemType.GreenKey)
+                            {
+                                this.currentState.inventory.set(keyType, keyCount - 1);
+                            }
+                            this.currentState.tiles[this.currentState.player.position.x][this.currentState.player.position.y] = Tile.Floor;
+                        }
+                    }
+
+                    if(tile === Tile.ChipGate && this.currentState.chipsRemaining <= 0)
+                    {
+                        this.currentState.tiles[this.currentState.player.position.x][this.currentState.player.position.y] = Tile.Floor;
+                    }
+                }
             }
         }
 

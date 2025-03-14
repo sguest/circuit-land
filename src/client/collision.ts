@@ -1,3 +1,4 @@
+import { ItemType } from '../common/gameState/ItemType';
 import type { Position } from '../common/gameState/Position';
 import { Tile } from '../common/gameState/Tile';
 import type { GameState } from './GameState';
@@ -41,5 +42,31 @@ export function checkCollision(level: GameState, position: Position, collisionTy
         return collisionType.type === 'player';
     }
 
+    if(targetTile === Tile.Exit) {
+        return collisionType.type === 'player';
+    }
+
+    if(targetTile === Tile.ChipGate)
+    {
+        return collisionType.type === 'player' && level.chipsRemaining <= 0;
+    }
+
+    const keyType = getKeyType(targetTile)
+    if(keyType)
+    {
+        return level.inventory.get(keyType) && collisionType.type === 'player';
+    }
+
     return false;
+}
+
+export const getKeyType = (tile: Tile) => {
+    const lookup: {[key: number]: ItemType} = {
+        [Tile.BlueDoor]: ItemType.BlueKey,
+        [Tile.RedDoor]: ItemType.RedKey,
+        [Tile.YellowDoor]: ItemType.YellowKey,
+        [Tile.GreenDoor]: ItemType.GreenKey,
+    }
+
+    return lookup[tile];
 }

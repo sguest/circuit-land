@@ -21,3 +21,8 @@ export function movePosition(position: Position, direction: Facing, distance: nu
         y: position.y + delta.y * distance,
     };
 }
+
+export function positionEqual(a: Position, b: Position)
+{
+    return a.x === b.x && a.y === b.y;
+}
