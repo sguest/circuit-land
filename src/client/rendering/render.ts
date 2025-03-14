@@ -6,6 +6,8 @@ import type { GameAssets } from '../assets/GameAssets';
 import { Tile } from '../../common/gameState/Tile';
 import { Facing } from '../../common/gameState/Facing';
 import { ItemType } from '../../common/gameState/ItemType';
+import type { Actor } from '../../common/gameState/Actor';
+import type { MonsterType } from '../../common/gameState/MonsterType';
 
 function renderSprite(position: Position, imageData: CanvasImageSource, renderContext: RenderContext, canvas: CanvasRenderingContext2D, angle?: number)
 {
@@ -25,27 +27,36 @@ function renderSprite(position: Position, imageData: CanvasImageSource, renderCo
     }
 }
 
+function renderActor(actor: Actor, imageData: CanvasImageSource, renderContext: RenderContext, canvas: CanvasRenderingContext2D)
+{
+    let angle: number = 0;
+    switch (actor.facing) {
+        case Facing.East:
+            angle = Math.PI / 2;
+            break;
+        case Facing.West:
+            angle = Math.PI * 1.5;
+            break;
+        case Facing.South:
+            angle = Math.PI;
+            break;
+    }
+    renderSprite(actor.position, imageData, renderContext, canvas, angle);
+}
+
 function clearCanvas(context: CanvasRenderingContext2D)
 {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 }
 
-export function renderLevel(level: GameState, browserContext: BrowserContext, gameAssets: GameAssets)
+function renderTiles(level: GameState, browserContext: BrowserContext, renderContext: RenderContext, tileSprites: Map<Tile, CanvasImageSource>)
 {
-    const renderContext: RenderContext = {
-        tileWidth: 30,
-        tileHeight: 30,
-    }
-
-    clearCanvas(browserContext.itemContext);
     clearCanvas(browserContext.tileContext);
-    clearCanvas(browserContext.monsterContext);
-    clearCanvas(browserContext.inventoryContext);
 
     for(let x = 0; x < level.width; x++)
     {
         for(let y = 0; y < level.height; y++) {
-            const imageData = gameAssets.tileSprites.get(level.tiles[x][y]);
+            const imageData = tileSprites.get(level.tiles[x][y]);
             if(imageData)
             {
                 renderSprite({ x, y }, imageData, renderContext, browserContext.tileContext);
@@ -57,9 +68,16 @@ export function renderLevel(level: GameState, browserContext: BrowserContext, ga
         }
     }
 
-    for(let item of level.items)
+    level.needsTileRender = false;
+}
+
+function renderItems(level: GameState, browserContext: BrowserContext, renderContext: RenderContext, itemSprites: Map<ItemType, CanvasImageSource>)
+{
+    clearCanvas(browserContext.itemContext);
+
+    for(let item of level.staticItems)
     {
-        const imageData = gameAssets.itemSprites.get(item.type);
+        const imageData = itemSprites.get(item.type);
         if(imageData)
         {
             renderSprite(item.position, imageData, renderContext, browserContext.itemContext);
@@ -70,32 +88,12 @@ export function renderLevel(level: GameState, browserContext: BrowserContext, ga
         }
     }
 
-    for(let monster of level.monsters)
-    {
-        const imageData = gameAssets.monsterSprites.get(monster.type);
-        if(imageData)
-        {
-            renderSprite(monster.position, imageData, renderContext, browserContext.monsterContext);
-        }
-        else
-        {
-            console.error(`Rendering error - unrecognized monster type ${monster.type}`);
-        }
-    }
+    level.needsItemRender = false;
+}
 
-    let angle: number = 0;
-    switch (level.player.facing) {
-        case Facing.East:
-            angle = Math.PI / 2;
-            break;
-        case Facing.West:
-            angle = Math.PI * 1.5;
-            break;
-        case Facing.South:
-            angle = Math.PI;
-            break;
-    }
-    renderSprite(level.player.position, gameAssets.playerSprite, renderContext, browserContext.monsterContext, angle);
+function renderInventory(level: GameState, browserContext: BrowserContext, renderContext: RenderContext, gameAssets: GameAssets)
+{
+    clearCanvas(browserContext.inventoryContext);
 
     for(let x = 0; x < 4; x++)
     {
@@ -117,4 +115,67 @@ export function renderLevel(level: GameState, browserContext: BrowserContext, ga
     }
 
     browserContext.chipsCount.textContent = level.chipsRemaining.toString();
+    
+    level.needsInventoryRender = false;
+}
+
+function renderMonsters(level: GameState, browserContext: BrowserContext, renderContext: RenderContext, monsterSprites: Map<MonsterType, CanvasImageSource>)
+{
+
+    for(let monster of level.monsters)
+    {
+        const imageData = monsterSprites.get(monster.type);
+        if(imageData)
+        {
+            renderActor(monster, imageData, renderContext, browserContext.actorContext);
+        }
+        else
+        {
+            console.error(`Rendering error - unrecognized monster type ${monster.type}`);
+        }
+    }
+}
+
+function renderDynamicItems(level: GameState, browserContext: BrowserContext, renderContext: RenderContext, itemSprites: Map<ItemType, CanvasImageSource>)
+{
+    for(let item of level.dynamicItems)
+        {
+            const imageData = itemSprites.get(item.type);
+            if(imageData)
+            {
+                renderSprite(item.position, imageData, renderContext, browserContext.actorContext);
+            }
+            else
+            {
+                console.error(`Rendering error - unrecognized item type ${item.type}`);
+            }
+        }}
+
+export function renderLevel(level: GameState, browserContext: BrowserContext, gameAssets: GameAssets)
+{
+    const renderContext: RenderContext = {
+        tileWidth: 30,
+        tileHeight: 30,
+    }
+
+    clearCanvas(browserContext.actorContext);
+
+    if(level.needsTileRender)
+    {
+        renderTiles(level, browserContext, renderContext, gameAssets.tileSprites);
+    }
+
+    if(level.needsItemRender)
+    {
+        renderItems(level, browserContext, renderContext, gameAssets.itemSprites);
+    }
+
+    if(level.needsInventoryRender)
+    {
+        renderInventory(level, browserContext, renderContext, gameAssets);
+    }
+
+    renderMonsters(level, browserContext, renderContext, gameAssets.monsterSprites);
+    renderDynamicItems(level, browserContext, renderContext, gameAssets.itemSprites);
+    renderActor(level.player, gameAssets.playerSprite, renderContext, browserContext.actorContext);
 }

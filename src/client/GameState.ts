@@ -8,9 +8,13 @@ export interface GameState {
     width: number;
     height: number;
     tiles: Tile[][];
-    items: Set<Item>;
-    monsters: Monster[];
+    staticItems: Set<Item>;
+    dynamicItems: Set<Item>;
+    monsters: Set<Monster>;
     player: Player;
     inventory: Map<ItemType, number>,
     chipsRemaining: number,
+    needsTileRender: boolean,
+    needsItemRender: boolean,
+    needsInventoryRender: boolean,
 }

@@ -14,7 +14,7 @@ const getCanvas = (id: string) => {
 const browserContext: BrowserContext = {
     tileContext: getCanvas('tile-canvas'),
     itemContext: getCanvas('item-canvas'),
-    monsterContext: getCanvas('monster-canvas'),
+    actorContext: getCanvas('actor-canvas'),
     inventoryContext: getCanvas('inventory-canvas'),
     chipsCount: document.querySelector('#chips-count')!,
 }

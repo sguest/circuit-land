@@ -1,9 +1,6 @@
-import type { Facing } from './Facing';
+import type { Actor } from './Actor';
 import type { MonsterType } from './MonsterType';
-import type { Position } from './Position';
 
-export interface Monster {
-    position: Position;
+export interface Monster extends Actor {
     type: MonsterType;
-    facing: Facing;
 }

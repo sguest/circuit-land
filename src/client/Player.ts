@@ -1,7 +1,4 @@
-import type { Facing } from '../common/gameState/Facing';
-import type { Position } from  '../common/gameState/Position';
+import type { Actor } from '../common/gameState/Actor';
 
-export interface Player {
-    position: Position;
-    facing: Facing
+export interface Player extends Actor {
 }
