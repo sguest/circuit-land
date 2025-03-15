@@ -1,4 +1,4 @@
-import { Facing } from '../common/gameState/Facing';
+import { Facing, turnAround } from '../common/gameState/Facing';
 import { ItemType } from '../common/gameState/ItemType';
 import type { LevelData } from '../common/gameState/LevelData';
 import { movePosition, positionEqual, type Position } from '../common/gameState/Position';
@@ -20,6 +20,7 @@ export class GameManager
     private browserContext: BrowserContext;
     private lastFrameTime = 0;
     private tickDelay = 0;
+    private slipDelay = 0;
 
     constructor(private levelData: LevelData, private onComplete: () => void){
         this.inputManager = getInputManager();
@@ -52,6 +53,7 @@ export class GameManager
             chipsRemaining: this.levelData.chips,
             timeRemaining: this.levelData.time * 1000,
             runningState: RunningState.Starting,
+            iceSliding: false,
             levelHint: this.levelData.hint,
             showHint: false,
             needsItemRender: true,
@@ -194,6 +196,11 @@ export class GameManager
             this.defeat();
         }
 
+        if(!this.currentState.inventory.get(ItemType.IceSkates) && (tile === Tile.Ice || tile === Tile.IceNorthEast || tile === Tile.IceNorthWest || tile === Tile.IceSouthEast || tile === Tile.IceSouthWest))
+        {
+            this.currentState.iceSliding = true;
+        }
+
         if(tile === Tile.Exit) {
             this.currentState.runningState = RunningState.Victory;
             this.inputManager.addOneTimeListener('Enter', () => this.onComplete());
@@ -215,11 +222,82 @@ export class GameManager
         });
     }
 
+    private checkForceMove()
+    {
+        const player = this.currentState.player;
+        const position = player.position;
+        const tile = this.currentState.tiles[position.x][position.y];
+        if(tile === Tile.ForceEast && !this.currentState.inventory.get(ItemType.SuctionBoots))
+        {
+            player.position.x++;
+        }
+
+        if(tile === Tile.ForceWest && !this.currentState.inventory.get(ItemType.SuctionBoots))
+        {
+            player.position.x--;
+        }
+
+        if(tile === Tile.ForceNorth && !this.currentState.inventory.get(ItemType.SuctionBoots))
+        {
+            player.position.y--;
+        }
+
+        if(tile === Tile.ForceSouth && !this.currentState.inventory.get(ItemType.SuctionBoots))
+        {
+            player.position.y++;
+        }
+
+        if(this.currentState.iceSliding)
+        {
+            let slideDirection: Facing | undefined = undefined;
+            if(tile === Tile.Ice)
+            {
+                slideDirection = player.facing;
+            }
+            else if(tile === Tile.IceNorthEast)
+            {
+                slideDirection = player.facing === Facing.South ? Facing.East : Facing.North;
+            }
+            else if(tile === Tile.IceNorthWest)
+            {
+                slideDirection = player.facing === Facing.South ? Facing.West : Facing.North;
+            }
+            else if(tile === Tile.IceSouthEast)
+            {
+                slideDirection = player.facing === Facing.North ? Facing.East : Facing.South;
+            }
+            else if(tile === Tile.IceSouthWest)
+            {
+                slideDirection = player.facing === Facing.North ? Facing.West : Facing.South;
+            }
+
+            if(slideDirection)
+            {
+                const targetPosition = movePosition(player.position, slideDirection);
+                if(checkCollision(this.currentState, targetPosition, { type: 'player', facing: slideDirection }))
+                {
+                    player.facing = slideDirection;
+                    player.position = movePosition(player.position, slideDirection);
+                }
+                else
+                {
+                    player.facing = turnAround(player.facing);
+                    player.position = movePosition(player.position, player.facing);
+                }
+            }
+            else
+            {
+                this.currentState.iceSliding = false;
+            }
+        }
+    }
+
     private handleFrame(time: number)
     {
         const elapsed = time - this.lastFrameTime;
         this.lastFrameTime = time;
         this.tickDelay += elapsed;
+        this.slipDelay += elapsed;
 
         if(this.currentState.runningState === RunningState.Running)
         {
@@ -232,31 +310,40 @@ export class GameManager
 
         if(this.currentState.runningState === RunningState.Starting || this.currentState.runningState === RunningState.Running)
         {
+            while(this.slipDelay >= 100)
+            {
+                this.slipDelay -= 100;
+                this.checkForceMove();
+            }
+
             while(this.tickDelay >= 200)
             {
                 const keyState = this.inputManager.getKeyState();
                 this.tickDelay -= 200;
-                let moveDirection: Facing | undefined = undefined;
-                if(keyState["ArrowDown"]) {
-                    moveDirection = Facing.South;
-                }
-                else if(keyState["ArrowLeft"]) {
-                    moveDirection = Facing.West;
-                }
-                else if(keyState["ArrowUp"]) {
-                    moveDirection = Facing.North;
-                }
-                else if(keyState["ArrowRight"]) {
-                    moveDirection = Facing.East;
-                }
-                if(moveDirection)
+                if(!this.currentState.iceSliding)
                 {
-                    this.currentState.runningState = RunningState.Running;
-                    this.currentState.player.facing = moveDirection;
-                    if(this.moveTo(movePosition(this.currentState.player.position, moveDirection)))
+                    let moveDirection: Facing | undefined = undefined;
+                    if(keyState["ArrowDown"]) {
+                        moveDirection = Facing.South;
+                    }
+                    else if(keyState["ArrowLeft"]) {
+                        moveDirection = Facing.West;
+                    }
+                    else if(keyState["ArrowUp"]) {
+                        moveDirection = Facing.North;
+                    }
+                    else if(keyState["ArrowRight"]) {
+                        moveDirection = Facing.East;
+                    }
+                    if(moveDirection)
                     {
-                        this.checkItems();
-                        this.checkCurrentTile();
+                        this.currentState.runningState = RunningState.Running;
+                        this.currentState.player.facing = moveDirection;
+                        if(this.moveTo(movePosition(this.currentState.player.position, moveDirection)))
+                        {
+                            this.checkItems();
+                            this.checkCurrentTile();
+                        }
                     }
                 }
 

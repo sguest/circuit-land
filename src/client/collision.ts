@@ -24,6 +24,15 @@ type CollisionType = PlayerCollisionType | BlockCollisionType | MonsterCollision
 const alwaysFloor = [
     Tile.Floor,
     Tile.Hint,
+    Tile.ForceEast,
+    Tile.ForceWest,
+    Tile.ForceNorth,
+    Tile.ForceSouth,
+    Tile.Ice,
+    Tile.IceNorthEast,
+    Tile.IceNorthWest,
+    Tile.IceSouthEast,
+    Tile.IceNorthWest,
 ];
 
 const onlyPlayer = [

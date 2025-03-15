@@ -23,6 +23,7 @@ export interface GameState {
     chipsRemaining: number,
     timeRemaining: number,
     runningState: RunningState,
+    iceSliding: boolean,
     levelHint?: string;
     showHint: boolean;
     needsTileRender: boolean,
