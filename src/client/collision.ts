@@ -1,5 +1,6 @@
 import type { Facing } from '../common/gameState/Facing';
 import { ItemType } from '../common/gameState/ItemType';
+import type { MonsterType } from '../common/gameState/MonsterType';
 import { movePosition, positionEqual, type Position } from '../common/gameState/Position';
 import { Tile } from '../common/gameState/Tile';
 import type { GameState } from './GameState';
@@ -13,7 +14,12 @@ interface BlockCollisionType {
     type: 'block'
 }
 
-type CollisionType = PlayerCollisionType | BlockCollisionType;
+interface MonsterCollisionType {
+    type: 'monster',
+    monsterType: MonsterType,
+}
+
+type CollisionType = PlayerCollisionType | BlockCollisionType | MonsterCollisionType;
 
 const alwaysFloor = [
     Tile.Floor,

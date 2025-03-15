@@ -9,6 +9,7 @@ import { getBrowserContext, type BrowserContext } from './BrowserContext';
 import { checkCollision, getKeyType } from './collision';
 import { RunningState, type GameState } from './GameState';
 import { getInputManager, InputManager } from './InputManager';
+import { getMonsterMove } from './monsterAction';
 import { renderLevel } from './rendering/render';
 
 export class GameManager
@@ -240,6 +241,20 @@ export class GameManager
                     {
                         this.checkItems();
                         this.checkCurrentTile();
+                    }
+                }
+
+                for(let monster of this.currentState.monsters)
+                {
+                    let moveDirection = getMonsterMove(this.currentState, monster);
+                    if(moveDirection)
+                    {
+                        monster.position = movePosition(monster.position, moveDirection);
+                        monster.facing = moveDirection;
+                        if(positionEqual(monster.position, this.currentState.player.position))
+                        {
+                            this.defeat();
+                        }
                     }
                 }
             }
