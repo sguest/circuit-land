@@ -98,6 +98,17 @@ export class GameManager
 
     private checkItems()
     {
+        const inventoryItems = [
+            ItemType.BlueKey,
+            ItemType.RedKey,
+            ItemType.GreenKey,
+            ItemType.YellowKey,
+            ItemType.Flippers,
+            ItemType.FireBoots,
+            ItemType.IceSkates,
+            ItemType.SuctionBoots,
+        ];
+
         for(let item of this.currentState.staticItems)
         {
             let collected = false;
@@ -109,7 +120,7 @@ export class GameManager
                     this.currentState.chipsRemaining = Math.max(this.currentState.chipsRemaining - 1, 0);
                     collected = true;
                 }
-                else if(item.type === ItemType.BlueKey || item.type === ItemType.RedKey || item.type === ItemType.GreenKey || item.type === ItemType.YellowKey)
+                else if(inventoryItems.indexOf(item.type) >= 0)
                 {
                     this.currentState.inventory.set(item.type, (this.currentState.inventory.get(item.type) || 0) + 1);
                     collected = true;
@@ -173,7 +184,12 @@ export class GameManager
             newTile = Tile.Floor;
         }
 
-        if(tile === Tile.Water)
+        if(tile === Tile.Water && !this.currentState.inventory.get(ItemType.Flippers))
+        {
+            this.defeat();
+        }
+
+        if(tile === Tile.Fire && !this.currentState.inventory.get(ItemType.FireBoots))
         {
             this.defeat();
         }

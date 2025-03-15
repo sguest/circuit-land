@@ -54,7 +54,7 @@ function checkTile(level: GameState, position: Position, collisionType: Collisio
         return collisionType.type === 'player';
     }
 
-    if(targetTile === Tile.Water) {
+    if(targetTile === Tile.Water || targetTile === Tile.Fire) {
         return collisionType.type === 'player' || collisionType.type === 'block';
     }
 

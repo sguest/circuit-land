@@ -103,7 +103,7 @@ function renderInventory(level: GameState, browserContext: BrowserContext, rende
         }
     }
 
-    let keys = [ItemType.RedKey, ItemType.BlueKey, ItemType.YellowKey, ItemType.GreenKey];
+    const keys = [ItemType.RedKey, ItemType.BlueKey, ItemType.YellowKey, ItemType.GreenKey];
     for(let i = 0; i < keys.length; i++)
     {
         const key = keys[i];
@@ -114,6 +114,17 @@ function renderInventory(level: GameState, browserContext: BrowserContext, rende
         }
     }
 
+    const boots = [ItemType.Flippers, ItemType.FireBoots, ItemType.IceSkates, ItemType.SuctionBoots];
+    for(let i = 0; i < boots.length; i++)
+        {
+            const boot = boots[i];
+            const bootCount = level.inventory.get(boot);
+            if(bootCount)
+            {
+                renderSprite({ x: i, y: 1}, gameAssets.itemSprites.get(boot)!, renderContext, browserContext.inventoryContext);
+            }
+        }
+    
     browserContext.chipsCount.textContent = level.chipsRemaining.toString();
     
     level.needsInventoryRender = false;
