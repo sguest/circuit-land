@@ -20,7 +20,7 @@ export class GameManager
     private lastFrameTime = 0;
     private tickDelay = 0;
 
-    constructor(private levelData: LevelData){
+    constructor(private levelData: LevelData, private onComplete: () => void){
         this.inputManager = getInputManager();
         this.browserContext = getBrowserContext();
         this.currentState = this.loadGameState();
@@ -149,6 +149,11 @@ export class GameManager
         if(tile === Tile.ChipGate && this.currentState.chipsRemaining <= 0)
         {
             newTile = Tile.Floor;
+        }
+
+        if(tile === Tile.Exit) {
+            this.currentState.runningState = RunningState.Victory;
+            this.inputManager.addOneTimeListener('Enter', () => this.onComplete());
         }
 
         if(newTile)
