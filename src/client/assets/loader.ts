@@ -18,11 +18,14 @@ async function loadSprites<T>(spriteLookup: {[key: number]: string}): Promise<Ma
                 map.set(+key as T, img);
                 resolve();
             }
+            img.onerror = () => {
+                reject();
+            }
             img.src = path;
         }));
     }
 
-    await Promise.all(promises);
+    await Promise.allSettled(promises);
 
     return map;
 }

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <rect x="0" y="0" width="500" height="500" style="fill: rgb(116, 247, 255);" />
+  <path style="stroke: rgb(255, 255, 255); stroke-width: 7px; stroke-linecap: round;" d="
+    M 81.673 27.224 L 26.56 110.226
+    M 240.04 73.373 L 184.927 156.375
+    M 447.211 53.453 L 392.098 136.455
+    M 336.321 244.688 L 281.208 327.69
+    M 116.534 263.354 L 61.421 346.356
+    M 422.017 397.583 L 366.904 480.585
+    M 192.204 373.945 L 137.091 456.947
+  " />
+  <path style="stroke: rgb(0, 230, 236); stroke-width: 7px; stroke-linecap: round;" d="
+    M 337.971 41.701 L 282.858 124.703
+    M 133.11 91.604 L 77.997 174.606
+    M 244.733 213.733 L 189.62 296.735
+    M 466.666 201.914 L 411.553 284.916
+    M 328.779 351.62 L 273.666 434.622
+    M 101.592 397.583 L 46.479 480.585
+  " />
+  <path style="stroke: rgb(170, 170, 170); stroke-width: 50px; stroke-linecap: square;" d="M 25 475 L 350 475 Q 475 475 475 350 L 475 25" fill="transparent" />
+</svg>

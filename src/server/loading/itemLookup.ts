@@ -7,4 +7,8 @@ export const itemLookup: {[key: number]: ItemType} = {
     0x65: ItemType.RedKey,
     0x66: ItemType.GreenKey,
     0x67: ItemType.YellowKey,
+    0x68: ItemType.Flippers,
+    0x69: ItemType.FireBoots,
+    0x6a: ItemType.IceSkates,
+    0x6b: ItemType.SuctionBoots,
 }

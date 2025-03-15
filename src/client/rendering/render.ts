@@ -7,7 +7,7 @@ import { Tile } from '../../common/gameState/Tile';
 import { Facing } from '../../common/gameState/Facing';
 import { ItemType } from '../../common/gameState/ItemType';
 import type { Actor } from '../../common/gameState/Actor';
-import type { MonsterType } from '../../common/gameState/MonsterType';
+import { MonsterType } from '../../common/gameState/MonsterType';
 
 function renderSprite(position: Position, imageData: CanvasImageSource, renderContext: RenderContext, canvas: CanvasRenderingContext2D, angle?: number)
 {
@@ -84,7 +84,7 @@ function renderItems(level: GameState, browserContext: BrowserContext, renderCon
         }
         else
         {
-            console.error(`Rendering error - unrecognized item type ${item.type}`);
+            console.error(`Rendering error - unrecognized item type ${ItemType[item.type]}`);
         }
     }
 
@@ -131,7 +131,7 @@ function renderMonsters(level: GameState, browserContext: BrowserContext, render
         }
         else
         {
-            console.error(`Rendering error - unrecognized monster type ${monster.type}`);
+            console.error(`Rendering error - unrecognized monster type ${MonsterType[monster.type]}`);
         }
     }
 }

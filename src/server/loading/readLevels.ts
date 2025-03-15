@@ -4,6 +4,8 @@ import { monsterLookup } from './monsterLookup';
 import type { Position } from '../../common/gameState/Position'
 import { Tile } from '../../common/gameState/Tile';
 import { tileLookup } from './tileLookup';
+import { ItemType } from '../../common/gameState/ItemType';
+import { MonsterType } from '../../common/gameState/MonsterType';
 
 // https://seasip.info/ccfile.html
 export const readLevels = async (path: string): Promise<LevelData[]> => {
@@ -48,7 +50,13 @@ export const readLevels = async (path: string): Promise<LevelData[]> => {
         return str;
     }
 
-    const debug = (_: string) => {} // console.log;
+    const showDebug = false;
+    const debug = (...data: any[]) => {
+        if(showDebug)
+        {
+            console.log(...data);
+        }
+    }
 
     const magic = readLong();
     const validMagic = 0x0002aaac;
@@ -80,6 +88,7 @@ export const readLevels = async (path: string): Promise<LevelData[]> => {
             {
                 data.start = {...position};
                 tile = Tile.Floor;
+                debug(`Level start at (${position.x}, ${position.y})`);
             }
             else
             {
@@ -87,15 +96,18 @@ export const readLevels = async (path: string): Promise<LevelData[]> => {
                 let monsterSpec = monsterLookup[fieldType];
 
                 if(itemType) {
-                    data.items?.push({ position: {...position}, type: itemType })
+                    data.items?.push({ position: {...position}, type: itemType });
+                    debug(`Item ${ItemType[itemType]} at (${position.x}, ${position.y})`);
                     tile = Tile.Floor;
                 }
                 else if(monsterSpec) {
                     tile = Tile.Floor;
+                    debug(`Monster ${MonsterType[monsterSpec.type]} at (${position.x}, ${position.y})`);
                     data.monsters?.push({ position: {...position}, ...monsterSpec })
                 }
                 else {
                     tile = tileLookup[fieldType];
+                    debug(`Tile ${Tile[tile]} at (${position.x}, ${position.y})`);
                 }
             }
 
@@ -266,7 +278,9 @@ export const readLevels = async (path: string): Promise<LevelData[]> => {
             monsters: [],
         };
 
+        debug('Reading layer 1');
         readLayer(data);
+        debug('Reading layer 2');
         readLayer(data);
 
         const optionalLength = readWord();
@@ -287,7 +301,18 @@ export const readLevels = async (path: string): Promise<LevelData[]> => {
 
     const levelData: LevelData[] = [];
 
-    levelData.push(readLevel(), readLevel());
+    for(let i = 0; i < 3; i++)
+    {
+        try
+        {
+            levelData.push(readLevel());
+        }
+        catch(e)
+        {
+            console.error(e);
+            throw e;
+        }
+    }
 
     return levelData;
 }

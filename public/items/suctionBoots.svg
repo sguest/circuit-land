@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" xmlns:bx="https://boxy-svg.com">
+  <path style="fill: rgb(0, 255, 0);" d="M 100 330 L 100 270 Q 100 220 150 220 L 260 220 Q 280 220 280 200 L 280 160 L 400 160 L 400 330"></path>
+  <path style="fill: rgb(0, 150, 0);" d="
+    M 150 330 L 110 370 L 230 370 L 190 330
+    M 310 330 L 270 370 L 390 370 L 350 330
+  "></path>
+</svg>

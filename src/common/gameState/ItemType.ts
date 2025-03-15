@@ -5,4 +5,8 @@ export enum ItemType {
     GreenKey = 4,
     YellowKey = 5,
     DirtBlock = 6,
+    Flippers = 7,
+    FireBoots = 8,
+    IceSkates = 9,
+    SuctionBoots = 10,
 }
