@@ -1,9 +1,10 @@
 import { Tile } from '../../common/gameState/Tile';
 
 export const tileLookup: {[key: number]: Tile} = {
-    0: Tile.Floor,
-    1: Tile.Wall,
-    3: Tile.Water,
+    0x00: Tile.Floor,
+    0x01: Tile.Wall,
+    0x03: Tile.Water,
+    0x0b: Tile.Dirt,
     0x15: Tile.Exit,
     0x16: Tile.BlueDoor,
     0x17: Tile.RedDoor,

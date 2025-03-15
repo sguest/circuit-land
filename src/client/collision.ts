@@ -1,31 +1,36 @@
+import type { Facing } from '../common/gameState/Facing';
 import { ItemType } from '../common/gameState/ItemType';
-import type { Position } from '../common/gameState/Position';
+import { movePosition, positionEqual, type Position } from '../common/gameState/Position';
 import { Tile } from '../common/gameState/Tile';
 import type { GameState } from './GameState';
 
 interface PlayerCollisionType {
     type: 'player',
+    facing: Facing,
 }
 
-type CollisionType = PlayerCollisionType;
+interface BlockCollisionType {
+    type: 'block'
+}
+
+type CollisionType = PlayerCollisionType | BlockCollisionType;
 
 const alwaysFloor = [
     Tile.Floor,
     Tile.Hint,
 ];
 
+const onlyPlayer = [
+    Tile.Exit,
+    Tile.Dirt,
+]
+
 const alwaysWall = [
     Tile.Wall,
 ]
 
-export const PlayerCollision: PlayerCollisionType = { type: 'player'}
-
-export function checkCollision(level: GameState, position: Position, collisionType: CollisionType)
+function checkTile(level: GameState, position: Position, collisionType: CollisionType)
 {
-    if(position.x < 0 || position.y < 0 || position.x >= level.width || position.y >= level.height) {
-        return false;
-    }
-
     const targetTile = level.tiles[position.x][position.y];
 
     if(alwaysFloor.indexOf(targetTile) >= 0)
@@ -38,12 +43,13 @@ export function checkCollision(level: GameState, position: Position, collisionTy
         return false;
     }
 
-    if(targetTile === Tile.Water) {
+    if(onlyPlayer.indexOf(targetTile) >= 0)
+    {
         return collisionType.type === 'player';
     }
 
-    if(targetTile === Tile.Exit) {
-        return collisionType.type === 'player';
+    if(targetTile === Tile.Water) {
+        return collisionType.type === 'player' || collisionType.type === 'block';
     }
 
     if(targetTile === Tile.ChipGate)
@@ -58,6 +64,35 @@ export function checkCollision(level: GameState, position: Position, collisionTy
     }
 
     return false;
+}
+
+export function checkCollision(level: GameState, position: Position, collisionType: CollisionType)
+{
+    if(position.x < 0 || position.y < 0 || position.x >= level.width || position.y >= level.height) {
+        return false;
+    }
+
+    if(!checkTile(level, position, collisionType))
+    {
+        return false;
+    }
+
+    for(let item of level.dynamicItems)
+    {
+        if(positionEqual(item.position, position))
+        {
+            if(collisionType.type === 'player' && item.type === ItemType.DirtBlock)
+            {
+                return checkCollision(level, movePosition(position, collisionType.facing), { type: 'block' });
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 export const getKeyType = (tile: Tile) => {

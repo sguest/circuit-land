@@ -6,7 +6,7 @@ import { Tile } from '../common/gameState/Tile';
 import type { GameAssets } from './assets/GameAssets';
 import { loadAssets } from './assets/loader';
 import { getBrowserContext, type BrowserContext } from './BrowserContext';
-import { checkCollision, getKeyType, PlayerCollision } from './collision';
+import { checkCollision, getKeyType } from './collision';
 import { RunningState, type GameState } from './GameState';
 import { getInputManager, InputManager } from './InputManager';
 import { renderLevel } from './rendering/render';
@@ -86,7 +86,7 @@ export class GameManager
 
     private moveTo(position: Position)
     {
-        if(checkCollision(this.currentState, position, PlayerCollision))
+        if(checkCollision(this.currentState, position, { type: 'player', facing: this.currentState.player.facing }))
         {
             this.currentState.player.position = position;
             return true;
@@ -122,6 +122,22 @@ export class GameManager
                 this.currentState.needsInventoryRender = true;
             }
         }
+
+        for(let item of this.currentState.dynamicItems)
+        {
+            if(positionEqual(item.position, this.currentState.player.position))
+            {
+                if(item.type === ItemType.DirtBlock)
+                {
+                    item.position = movePosition(item.position, this.currentState.player.facing);
+                    if(this.currentState.tiles[item.position.x][item.position.y] === Tile.Water) {
+                        this.currentState.dynamicItems.delete(item);
+                        this.currentState.tiles[item.position.x][item.position.y] = Tile.Dirt;
+                        this.currentState.needsTileRender = true;
+                    }
+                }
+            }
+        }
     }
 
     private checkCurrentTile()
@@ -149,6 +165,16 @@ export class GameManager
         if(tile === Tile.ChipGate && this.currentState.chipsRemaining <= 0)
         {
             newTile = Tile.Floor;
+        }
+
+        if(tile === Tile.Dirt)
+        {
+            newTile = Tile.Floor;
+        }
+
+        if(tile === Tile.Water)
+        {
+            this.defeat();
         }
 
         if(tile === Tile.Exit) {

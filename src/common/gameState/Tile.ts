@@ -9,4 +9,5 @@ export enum Tile {
     YellowDoor = 8,
     Hint = 9,
     ChipGate = 10,
+    Dirt = 11,
 }

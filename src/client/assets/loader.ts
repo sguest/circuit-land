@@ -43,7 +43,13 @@ export async function loadAssets(level: LevelData): Promise<GameAssets>
 
     for(let tile of tiles) {
         const tileName = Tile[tile];
-        tileLookup[tile] = `/tiles/${tileName}.svg`
+        tileLookup[tile] = `/tiles/${tileName}.svg`;
+
+        if(tile === Tile.Water)
+        {
+            const dirtName = Tile[Tile.Dirt];
+            tileLookup[Tile.Dirt] = `/tiles/${dirtName}.svg`;
+        }
     }
 
     var items = new Set<ItemType>();
