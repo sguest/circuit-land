@@ -122,9 +122,9 @@ export const readLevels = async (path: string): Promise<LevelData[]> => {
             if(data.tiles[position.x][position.y]) {
                 if(tile !== Tile.Floor)
                 {
-                    if(tile !== data.tiles[position.x][position.y])
+                    if(tile !== data.tiles[position.x][position.y] && data.tiles[position.x][position.y] !== Tile.Floor)
                     {
-                        console.warn(`Position (${position.x},${position.y}) has 2 different tiles specified - ${data.tiles[position.x][position.y]} and ${tile}. ${tile} will be used`)
+                        console.warn(`Position (${position.x},${position.y}) has 2 different tiles specified - ${Tile[data.tiles[position.x][position.y]]} and ${Tile[tile]}. ${Tile[tile]} will be used`)
                     }
                     data.tiles[position.x][position.y] = tile;
                 }

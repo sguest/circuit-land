@@ -33,6 +33,9 @@ const alwaysFloor = [
     Tile.IceNorthWest,
     Tile.IceSouthEast,
     Tile.IceNorthWest,
+    Tile.SwitchBlockOpen,
+    Tile.SwitchBlockButton,
+    Tile.TankButton,
 ];
 
 const onlyPlayer = [
@@ -42,6 +45,7 @@ const onlyPlayer = [
 
 const alwaysWall = [
     Tile.Wall,
+    Tile.SwitchBlockClosed,
 ]
 
 function checkTile(level: GameState, position: Position, collisionType: CollisionType)

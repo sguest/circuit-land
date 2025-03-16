@@ -1,6 +1,7 @@
 import { Facing, turnAround } from '../common/gameState/Facing';
 import { ItemType } from '../common/gameState/ItemType';
 import type { LevelData } from '../common/gameState/LevelData';
+import { MonsterType } from '../common/gameState/MonsterType';
 import { movePosition, positionEqual, type Position } from '../common/gameState/Position';
 import { Tile } from '../common/gameState/Tile';
 import type { GameAssets } from './assets/GameAssets';
@@ -201,6 +202,37 @@ export class GameManager
             this.currentState.iceSliding = true;
         }
 
+        if(tile === Tile.SwitchBlockButton)
+        {
+            for(let x = 0; x < this.currentState.width; x++)
+            {
+                for(let y = 0; y < this.currentState.height; y++)
+                {
+                    if(this.currentState.tiles[x][y] === Tile.SwitchBlockClosed)
+                    {
+                        this.currentState.tiles[x][y] = Tile.SwitchBlockOpen;
+                    }
+                    else if(this.currentState.tiles[x][y] === Tile.SwitchBlockOpen)
+                    {
+                        this.currentState.tiles[x][y] = Tile.SwitchBlockClosed;
+                    }
+                }
+            }
+
+            this.currentState.needsTileRender = true;
+        }
+
+        if(tile === Tile.TankButton)
+        {
+            for(let monster of this.currentState.monsters)
+            {
+                if(monster.type === MonsterType.Tank)
+                {
+                    monster.facing = turnAround(monster.facing);
+                }
+            }
+        }
+
         if(tile === Tile.Exit) {
             this.currentState.runningState = RunningState.Victory;
             this.inputManager.addOneTimeListener('Enter', () => this.onComplete());
@@ -354,10 +386,10 @@ export class GameManager
                     {
                         monster.position = movePosition(monster.position, moveDirection);
                         monster.facing = moveDirection;
-                        if(positionEqual(monster.position, this.currentState.player.position))
-                        {
-                            this.defeat();
-                        }
+                    }
+                    if(positionEqual(monster.position, this.currentState.player.position))
+                    {
+                        this.defeat();
                     }
                 }
             }
