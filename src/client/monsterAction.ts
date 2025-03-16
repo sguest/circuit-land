@@ -31,6 +31,9 @@ const actions: {[key in MonsterType]: (level: GameState, monster: Monster) => Fa
                 return movePriority(level, monster, [Facing.East, Facing.South, Facing.West, Facing.North]);
         }
         return movePriority(level, monster, [Facing.North, Facing.East, Facing.South, Facing.West]);
+    },
+    [MonsterType.Tank]: (level, monster) => {
+        return undefined
     }
 }
 

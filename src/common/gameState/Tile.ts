@@ -20,4 +20,8 @@ export enum Tile {
     IceNorthEast = 19,
     IceNorthWest = 20,
     Fire = 21,
+    TankButton = 22,
+    SwitchBlockButton = 23,
+    SwitchBlockOpen = 24,
+    SwitchBlockClosed = 25,
 }

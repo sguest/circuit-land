@@ -21,5 +21,9 @@ export const tileLookup: {[key: number]: Tile} = {
     0x1c: Tile.IceNorthWest,
     0x1d: Tile.IceNorthEast,
     0x22: Tile.ChipGate,
+    0x23: Tile.SwitchBlockButton,
+    0x25: Tile.SwitchBlockClosed,
+    0x26: Tile.SwitchBlockOpen,
+    0x28: Tile.TankButton,
     0x2f: Tile.Hint,
 }

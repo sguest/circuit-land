@@ -301,7 +301,7 @@ export const readLevels = async (path: string): Promise<LevelData[]> => {
 
     const levelData: LevelData[] = [];
 
-    for(let i = 0; i < 3; i++)
+    for(let i = 0; i < 4; i++)
     {
         try
         {
