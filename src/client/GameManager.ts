@@ -5,7 +5,7 @@ import { MonsterType } from '../common/gameState/MonsterType';
 import { movePosition, positionEqual, type Position } from '../common/gameState/Position';
 import { Tile } from '../common/gameState/Tile';
 import type { GameAssets } from './assets/GameAssets';
-import { loadAssets } from './assets/loader';
+import { getAssets } from './assets/loader';
 import { getBrowserContext, type BrowserContext } from './BrowserContext';
 import { checkCollision, getKeyType } from './collision';
 import { RunningState, type GameState } from './GameState';
@@ -69,7 +69,7 @@ export class GameManager
         this.browserContext.levelNumber.innerText = this.levelData.levelNumber.toString();
         this.browserContext.password.innerText = this.levelData.password;
 
-        loadAssets(this.levelData).then(assets => {
+        getAssets().then(assets => {
             this.assets = assets;
             this.start();
         });
@@ -326,13 +326,16 @@ export class GameManager
 
     private handleFrame(time: number)
     {
+        const slipTime = 100;
+        const moveTime = 200;
+
         const elapsed = time - this.lastFrameTime;
         this.lastFrameTime = time;
-        this.tickDelay += elapsed;
-        this.slipDelay += elapsed;
 
         if(this.currentState.runningState === RunningState.Running)
         {
+            this.tickDelay += elapsed;
+            this.slipDelay += elapsed;
             this.currentState.timeRemaining = Math.max(this.currentState.timeRemaining - elapsed, 0);
             if(this.currentState.timeRemaining <= 0)
             {
@@ -340,59 +343,70 @@ export class GameManager
             }
         }
 
-        if(this.currentState.runningState === RunningState.Starting || this.currentState.runningState === RunningState.Running)
+        if(this.currentState.runningState === RunningState.Running)
         {
-            while(this.slipDelay >= 100)
+            if(this.slipDelay >= slipTime)
             {
-                this.slipDelay -= 100;
+                this.slipDelay -= slipTime;
                 this.checkForceMove();
             }
+        }
 
-            while(this.tickDelay >= 200)
+        if(this.currentState.runningState === RunningState.Starting || (this.currentState.runningState === RunningState.Running && this.tickDelay >= moveTime))
+        {
+            const keyState = this.inputManager.getKeyState();
+            if(!this.currentState.iceSliding)
             {
-                const keyState = this.inputManager.getKeyState();
-                this.tickDelay -= 200;
-                if(!this.currentState.iceSliding)
-                {
-                    let moveDirection: Facing | undefined = undefined;
-                    if(keyState["ArrowDown"]) {
-                        moveDirection = Facing.South;
-                    }
-                    else if(keyState["ArrowLeft"]) {
-                        moveDirection = Facing.West;
-                    }
-                    else if(keyState["ArrowUp"]) {
-                        moveDirection = Facing.North;
-                    }
-                    else if(keyState["ArrowRight"]) {
-                        moveDirection = Facing.East;
-                    }
-                    if(moveDirection)
-                    {
-                        this.currentState.runningState = RunningState.Running;
-                        this.currentState.player.facing = moveDirection;
-                        if(this.moveTo(movePosition(this.currentState.player.position, moveDirection)))
-                        {
-                            this.checkItems();
-                            this.checkCurrentTile();
-                        }
-                    }
+                let moveDirection: Facing | undefined = undefined;
+                if(keyState["ArrowDown"]) {
+                    moveDirection = Facing.South;
                 }
-
-                for(let monster of this.currentState.monsters)
+                else if(keyState["ArrowLeft"]) {
+                    moveDirection = Facing.West;
+                }
+                else if(keyState["ArrowUp"]) {
+                    moveDirection = Facing.North;
+                }
+                else if(keyState["ArrowRight"]) {
+                    moveDirection = Facing.East;
+                }
+                if(moveDirection)
                 {
-                    let moveDirection = getMonsterMove(this.currentState, monster);
-                    if(moveDirection)
+                    this.currentState.runningState = RunningState.Running;
+                    this.currentState.player.facing = moveDirection;
+                    if(this.moveTo(movePosition(this.currentState.player.position, moveDirection)))
                     {
-                        monster.position = movePosition(monster.position, moveDirection);
-                        monster.facing = moveDirection;
-                    }
-                    if(positionEqual(monster.position, this.currentState.player.position))
-                    {
-                        this.defeat();
+                        this.checkItems();
+                        this.checkCurrentTile();
                     }
                 }
             }
+        }
+
+        if(this.currentState.runningState === RunningState.Running && this.tickDelay >= moveTime)
+        {
+            for(let monster of this.currentState.monsters)
+            {
+                let moveDirection = getMonsterMove(this.currentState, monster);
+                if(moveDirection)
+                {
+                    monster.position = movePosition(monster.position, moveDirection);
+                    monster.facing = moveDirection;
+                }
+                if(monster.type === MonsterType.Fireball && this.currentState.tiles[monster.position.x][monster.position.y] === Tile.Water)
+                {
+                    this.currentState.monsters.delete(monster);
+                }
+                if(positionEqual(monster.position, this.currentState.player.position))
+                {
+                    this.defeat();
+                }
+            }
+        }
+
+        if(this.tickDelay >= moveTime)
+        {
+            this.tickDelay -= moveTime;
         }
 
         renderLevel(this.currentState, this.browserContext, this.assets);

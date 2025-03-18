@@ -9,4 +9,6 @@ export enum ItemType {
     FireBoots = 8,
     IceSkates = 9,
     SuctionBoots = 10,
+    Bomb = 11,
+    CloningMachine = 12,
 }

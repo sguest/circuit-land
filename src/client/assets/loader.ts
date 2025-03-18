@@ -1,5 +1,4 @@
 import { ItemType } from '../../common/gameState/ItemType';
-import type { LevelData } from '../../common/gameState/LevelData';
 import { MonsterType } from '../../common/gameState/MonsterType';
 import { Tile } from '../../common/gameState/Tile';
 import type { GameAssets } from './GameAssets';
@@ -30,58 +29,25 @@ async function loadSprites<T>(spriteLookup: {[key: number]: string}): Promise<Ma
     return map;
 }
 
-export async function loadAssets(level: LevelData): Promise<GameAssets>
+function getEnumLookup(e: object, directory: string) {
+    const lookup: {[key: string]: string} = {};
+    for(let key in e)
+    {
+        const value = (e as any)[key];
+        if(typeof value === 'string')
+        {
+            lookup[key as unknown as number] = `/${directory}/${value}.svg`;
+        }
+    }
+
+    return lookup;
+}
+
+async function loadAssets(): Promise<GameAssets>
 {
-    var tiles = new Set<Tile>();
-
-    for(let x = 0; x < level.width; x++)
-    {
-        for(let y = 0; y < level.height; y++)
-        {
-            tiles.add(level.tiles[x][y]);
-        }
-    }
-
-    let tileLookup: {[key: string]: string} = {};
-
-    for(let tile of tiles) {
-        const tileName = Tile[tile];
-        tileLookup[tile] = `/tiles/${tileName}.svg`;
-
-        if(tile === Tile.Water)
-        {
-            const dirtName = Tile[Tile.Dirt];
-            tileLookup[Tile.Dirt] = `/tiles/${dirtName}.svg`;
-        }
-    }
-
-    var items = new Set<ItemType>();
-
-    for(let item of level.items)
-    {
-        items.add(item.type);
-    }
-
-    let itemLookup: {[key: string]: string} = {};
-
-    for(let item of items) {
-        const itemName = ItemType[item];
-        itemLookup[item] = `/items/${itemName}.svg`
-    }
-
-    var monsters = new Set<MonsterType>();
-
-    for(let monster of level.monsters)
-    {
-        monsters.add(monster.type);
-    }
-
-    let monsterLookup: {[key: string]: string} = {};
-
-    for(let monster of monsters) {
-        const monsterName = MonsterType[monster];
-        monsterLookup[monster] = `/monsters/${monsterName}.svg`
-    }
+    const tileLookup = getEnumLookup(Tile, 'tiles');
+    const itemLookup = getEnumLookup(ItemType, 'items');
+    const monsterLookup = getEnumLookup(MonsterType, 'monsters');
 
     const tilePromise = loadSprites<Tile>(tileLookup);
     const itemPromise = loadSprites<ItemType>(itemLookup);
@@ -94,4 +60,16 @@ export async function loadAssets(level: LevelData): Promise<GameAssets>
         monsterSprites: await monsterPromise,
         playerSprite: (await playerPromise).get(0)!,
     };
+}
+
+let instance: Promise<GameAssets> | undefined = undefined;
+
+export async function getAssets()
+{
+    if(!instance)
+    {
+        instance = loadAssets()
+    }
+
+    return await loadAssets();
 }

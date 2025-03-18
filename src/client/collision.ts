@@ -1,6 +1,6 @@
 import type { Facing } from '../common/gameState/Facing';
 import { ItemType } from '../common/gameState/ItemType';
-import type { MonsterType } from '../common/gameState/MonsterType';
+import { MonsterType } from '../common/gameState/MonsterType';
 import { movePosition, positionEqual, type Position } from '../common/gameState/Position';
 import { Tile } from '../common/gameState/Tile';
 import type { GameState } from './GameState';
@@ -36,6 +36,9 @@ const alwaysFloor = [
     Tile.SwitchBlockOpen,
     Tile.SwitchBlockButton,
     Tile.TankButton,
+    Tile.Trap,
+    Tile.TrapButton,
+    Tile.CloneButton,
 ];
 
 const onlyPlayer = [
@@ -67,8 +70,14 @@ function checkTile(level: GameState, position: Position, collisionType: Collisio
         return collisionType.type === 'player';
     }
 
-    if(targetTile === Tile.Water || targetTile === Tile.Fire) {
-        return collisionType.type === 'player' || collisionType.type === 'block';
+    if(targetTile === Tile.Water) {
+        return collisionType.type === 'player' || collisionType.type === 'block' ||
+        (collisionType.type === 'monster' && (collisionType.monsterType === MonsterType.Fireball || collisionType.monsterType === MonsterType.Glider));
+    }
+
+    if(targetTile === Tile.Fire) {
+        return collisionType.type === 'player' || collisionType.type === 'block' ||
+        (collisionType.type === 'monster' && collisionType.monsterType === MonsterType.Fireball);
     }
 
     if(targetTile === Tile.ChipGate)

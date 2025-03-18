@@ -24,4 +24,7 @@ export enum Tile {
     SwitchBlockButton = 23,
     SwitchBlockOpen = 24,
     SwitchBlockClosed = 25,
+    TrapButton = 26,
+    Trap = 27,
+    CloneButton = 28,
 }

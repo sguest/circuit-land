@@ -2,7 +2,7 @@ import type { Monster } from '../common/gameState/Monster';
 import { MonsterType } from '../common/gameState/MonsterType';
 import type { GameState } from './GameState';
 import { movePosition, type Position } from '../common/gameState/Position';
-import { Facing } from '../common/gameState/Facing';
+import { Facing, turnAround, turnLeft, turnRight } from '../common/gameState/Facing';
 import { checkCollision } from './collision';
 
 function movePriority(level: GameState, monster: Monster, directions: Facing[])
@@ -21,19 +21,19 @@ function movePriority(level: GameState, monster: Monster, directions: Facing[])
 
 const actions: {[key in MonsterType]: (level: GameState, monster: Monster) => Facing | undefined} = {
     [MonsterType.Bug]: (level, monster) => {
-        switch(monster.facing)
-        {
-            case Facing.North:
-                return movePriority(level, monster, [Facing.West, Facing.North, Facing.East, Facing.South]);
-            case Facing.West:
-                return movePriority(level, monster, [Facing.South, Facing.West, Facing.North, Facing.East]);
-            case Facing.South:
-                return movePriority(level, monster, [Facing.East, Facing.South, Facing.West, Facing.North]);
-        }
-        return movePriority(level, monster, [Facing.North, Facing.East, Facing.South, Facing.West]);
+        return movePriority(level, monster, [turnLeft(monster.facing), monster.facing, turnRight(monster.facing), turnAround(monster.facing)]);
     },
     [MonsterType.Tank]: (level, monster) => {
         return movePriority(level, monster, [monster.facing]);
+    },
+    [MonsterType.Ball]: (level, monster) => {
+        return movePriority(level, monster, [monster.facing, turnAround(monster.facing)]);
+    },
+    [MonsterType.Fireball]: (level, monster) => {
+        return movePriority(level, monster, [monster.facing, turnRight(monster.facing), turnLeft(monster.facing), turnAround(monster.facing)])
+    },
+    [MonsterType.Glider]: (level, monster) => {
+        return movePriority(level, monster, [monster.facing, turnLeft(monster.facing), turnRight(monster.facing), turnAround(monster.facing)])
     }
 }
 

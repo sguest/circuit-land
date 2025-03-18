@@ -4,4 +4,4 @@ import { LevelManager } from './LevelManager';
 var response = await fetch('/data');
 var data: LevelData[] = await response.json();
 
-new LevelManager(data).startLevel(3);
+new LevelManager(data).startLevel(4);
