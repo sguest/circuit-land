@@ -1,8 +1,10 @@
-import type { Item } from '../common/gameState/Item';
-import type { ItemType } from '../common/gameState/ItemType';
-import type { Monster } from '../common/gameState/Monster';
-import type { Tile } from '../common/gameState/Tile';
+import type { Item } from '../../common/gameState/Item';
+import type { ItemType } from '../../common/gameState/ItemType';
+import type { Monster } from '../../common/gameState/Monster';
+import type { Tile } from '../../common/gameState/Tile';
+import type { DynamicItem } from './DynamicItem';
 import type { Player } from './Player';
+import type { StaticItem } from './StaticItem';
 
 export const enum RunningState {
     Starting = 1,
@@ -15,8 +17,8 @@ export interface GameState {
     width: number;
     height: number;
     tiles: Tile[][];
-    staticItems: Set<Item>;
-    dynamicItems: Set<Item>;
+    staticItems: Set<StaticItem>[][];
+    dynamicItems: Set<DynamicItem>;
     monsters: Set<Monster>;
     player: Player;
     inventory: Map<ItemType, number>,

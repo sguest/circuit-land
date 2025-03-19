@@ -3,7 +3,7 @@ import { ItemType } from '../common/gameState/ItemType';
 import { MonsterType } from '../common/gameState/MonsterType';
 import { movePosition, positionEqual, type Position } from '../common/gameState/Position';
 import { Tile } from '../common/gameState/Tile';
-import type { GameState } from './GameState';
+import type { GameState } from './gameState/GameState';
 
 interface PlayerCollisionType {
     type: 'player',

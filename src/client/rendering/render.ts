@@ -1,6 +1,6 @@
 import type { RenderContext } from './RenderContext';
 import type { Position } from '../../common/gameState/Position';
-import type { GameState } from '../GameState';
+import type { GameState } from '../gameState/GameState';
 import type { BrowserContext } from '../BrowserContext';
 import type { GameAssets } from '../assets/GameAssets';
 import { Tile } from '../../common/gameState/Tile';
@@ -75,16 +75,22 @@ function renderItems(level: GameState, browserContext: BrowserContext, renderCon
 {
     clearCanvas(browserContext.itemContext);
 
-    for(let item of level.staticItems)
+    for(let x = 0; x < level.width; x++)
     {
-        const imageData = itemSprites.get(item.type);
-        if(imageData)
+        for(let y = 0; y < level.height; y++)
         {
-            renderSprite(item.position, imageData, renderContext, browserContext.itemContext);
-        }
-        else
-        {
-            console.error(`Rendering error - unrecognized item type ${ItemType[item.type]}`);
+            for(let item of level.staticItems[x][y])
+            {
+                const imageData = itemSprites.get(item.type);
+                if(imageData)
+                {
+                    renderSprite({ x, y }, imageData, renderContext, browserContext.itemContext);
+                }
+                else
+                {
+                    console.error(`Rendering error - unrecognized item type ${ItemType[item.type]}`);
+                }        
+            }
         }
     }
 

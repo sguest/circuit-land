@@ -8,7 +8,9 @@ import type { GameAssets } from './assets/GameAssets';
 import { getAssets } from './assets/loader';
 import { getBrowserContext, type BrowserContext } from './BrowserContext';
 import { checkCollision, getKeyType } from './collision';
-import { RunningState, type GameState } from './GameState';
+import { dynamicFromItem, type DynamicItem } from './gameState/DynamicItem';
+import { RunningState, type GameState } from './gameState/GameState';
+import { staticFromItem, type StaticItem } from './gameState/StaticItem';
 import { getInputManager, InputManager } from './InputManager';
 import { getMonsterMove } from './monsterAction';
 import { renderLevel } from './rendering/render';
@@ -39,12 +41,44 @@ export class GameManager
 
     private loadGameState(): GameState
     {
+        let staticItems: Set<StaticItem>[][] = [];
+        for(let x = 0; x < this.levelData.width; x++)
+        {
+            staticItems[x] = [];
+            for(let y = 0; y < this.levelData.height; y++)
+            {
+                staticItems[x][y] = new Set<StaticItem>();
+            }
+        }
+
+        let dynamicItems = new Set<DynamicItem>();
+
+        for(let item of this.levelData.items)
+        {
+            let dynamicItem = dynamicFromItem(item);
+            if(dynamicItem)
+            {
+                dynamicItems.add(dynamicItem)
+            }
+            else {
+                let staticItem = staticFromItem(item);
+                if(staticItem)
+                {
+                    staticItems[item.position.x][item.position.y].add(staticItem);
+                }
+                else
+                {
+                    throw new Error(`Unrecognized item type ${ItemType[item.type]}`)
+                }
+            }
+        }
+
         return {
             width: this.levelData.width,
             height: this.levelData.height,
             tiles: this.levelData.tiles.map(x => [...x]),
-            staticItems: new Set(this.levelData.items.filter(i => i.type !== ItemType.DirtBlock).map(i => ({...i}))),
-            dynamicItems: new Set(this.levelData.items.filter(i => i.type === ItemType.DirtBlock).map(i => ({...i}))),
+            staticItems,
+            dynamicItems,
             monsters: new Set(this.levelData.monsters.map(m => ({...m}))),
             player: {
                 position: {...this.levelData.start},
@@ -112,27 +146,24 @@ export class GameManager
             ItemType.SuctionBoots,
         ];
 
-        for(let item of this.currentState.staticItems)
+        let tileItems = this.currentState.staticItems[this.currentState.player.position.x][this.currentState.player.position.y]
+        for(let item of tileItems)
         {
             let collected = false;
-
-            if(positionEqual(item.position, this.currentState.player.position))
+            if(item.type === ItemType.Chip)
             {
-                if(item.type === ItemType.Chip)
-                {
-                    this.currentState.chipsRemaining = Math.max(this.currentState.chipsRemaining - 1, 0);
-                    collected = true;
-                }
-                else if(inventoryItems.indexOf(item.type) >= 0)
-                {
-                    this.currentState.inventory.set(item.type, (this.currentState.inventory.get(item.type) || 0) + 1);
-                    collected = true;
-                }
+                this.currentState.chipsRemaining = Math.max(this.currentState.chipsRemaining - 1, 0);
+                collected = true;
+            }
+            else if(inventoryItems.indexOf(item.type) >= 0)
+            {
+                this.currentState.inventory.set(item.type, (this.currentState.inventory.get(item.type) || 0) + 1);
+                collected = true;
             }
 
             if(collected)
             {
-                this.currentState.staticItems.delete(item);
+                tileItems.delete(item);
                 this.currentState.needsItemRender = true;
                 this.currentState.needsInventoryRender = true;
             }

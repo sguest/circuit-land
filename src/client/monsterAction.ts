@@ -1,6 +1,6 @@
 import type { Monster } from '../common/gameState/Monster';
 import { MonsterType } from '../common/gameState/MonsterType';
-import type { GameState } from './GameState';
+import type { GameState } from './gameState/GameState';
 import { movePosition, type Position } from '../common/gameState/Position';
 import { Facing, turnAround, turnLeft, turnRight } from '../common/gameState/Facing';
 import { checkCollision } from './collision';
